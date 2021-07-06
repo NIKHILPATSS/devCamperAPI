@@ -26,15 +26,15 @@ const advancedResults = (model,populate) => async (req,res,next) => {
     
     //Select Fields
     if(req.query.select){
-            const fields = req.query.select.split(',').join(' ');
-            query =query.select(fields);
+        const fields = req.query.select.split(',').join(' ');
+        query =query.select(fields);
     }
     //Sort
     if(req.query.sort){
-            const sortBy = req.query.sort.split(',').join(' ');
-            query =query.sort(sortBy);
+        const sortBy = req.query.sort.split(',').join(' ');
+        query =query.sort(sortBy);
     }else{
-            query =query.sort('-createdAt');
+        query =query.sort('-createdAt');
     }
 
     if(populate){
@@ -43,19 +43,18 @@ const advancedResults = (model,populate) => async (req,res,next) => {
     const results = await query;
     //Pagination results
     const pagination = {};
-    console.log(total);
     if(endIndex < total){
-            pagination.next = {
-                    page : page + 1,
-                    limit
-            }
+        pagination.next = {
+            page : page + 1,
+            limit
+        }
     }
 
     if(startIndex > 0){
-            pagination.prev = {
-                    page : page -1,
-                    limit
-            }
+        pagination.prev = {
+            page : page -1,
+            limit
+        }
     }
         
     res.advancedResults = {
