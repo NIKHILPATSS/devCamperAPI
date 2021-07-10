@@ -7,6 +7,12 @@ const fileupload = require('express-fileupload');
 const cokkieParser = require('cookie-parser');
 const errorHandler = require('./middlewares/error');
 const connectDB = require('./config/db');
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const cors = require('cors');
 
 //Load env vars
 dotenv.config({path : './config/config.env' });
@@ -19,7 +25,7 @@ const bootcamps = require('./routes/bootcamps');
 const courses = require('./routes/courses');
 const auth = require('./routes/auth');
 const users = require('./routes/users');
-
+const reviews = require('./routes/reviews');
 
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -38,6 +44,30 @@ if(process.env.NODE_ENV === 'development'){
 //File uploading    
 app.use(fileupload());
 
+//Sanitize data
+app.use(mongoSanitize());
+
+
+// Set security headers
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 mins
+    max: 100
+});
+
+app.use(limiter);
+
+// Prevent http param pollution
+app.use(hpp());
+
+// Prevent XSS attacks
+app.use(xss());
+
+// Enable CORS
+app.use(cors());
+
 app.use(express.static(path.join(__dirname,'public')));
 
 
@@ -46,6 +76,7 @@ app.use('/api/v1/bootcamps',bootcamps);
 app.use('/api/v1/courses',courses);
 app.use('/api/v1/auth',auth);
 app.use('/api/v1/users',users);
+app.use('/api/v1/reviews',reviews);
 
 
 app.use(errorHandler);
